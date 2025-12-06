@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitorizare Meteo IoT</title>
+    <style>
+        /* --- STILIZARE GENERALĂ (CSS) --- */
+        :root {
+            --bg-color: #0f172a;       /* Fundal foarte inchis */
+            --card-indoor: #1e293b;    /* Culoare card Indoor */
+            --card-outdoor: #334155;   /* Culoare card Outdoor */
+            --text-main: #f8fafc;      /* Text alb */
+            --accent: #38bdf8;         /* Albastru deschis */
+            --warning: #facc15;        /* Galben pentru avertismente */
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            text-align: center;
+            font-weight: 300;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .status-bar {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        /* --- GRID PENTRU CARDURI --- */
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        /* --- DESIGN CARDURI --- */
+        .card {
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-indoor {
+            background-color: var(--card-indoor);
+            border-top: 4px solid #4ade80; /* Verde pentru Interior */
+        }
+
+        .card-outdoor {
+            background-color: var(--card-outdoor);
+            border-top: 4px solid #f87171; /* Rosu pentru Exterior */
+        }
+
+        .card h2 {
+            margin-top: 0;
+            font-size: 1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* --- LINIILE DE DATE --- */
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #cbd5e1;
+        }
+
+        .value-group {
+            text-align: right;
+        }
+
+        .value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .unit {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            margin-left: 2px;
+        }
+
+        /* Loading animation */
+        .blink {
+            animation: blinker 1.5s linear infinite;
+            color: var(--warning);
+        }
+        @keyframes blinker {
+            50% { opacity: 0.3; }
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 50px;
+            font-size: 0.8rem;
+            color: #475569;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>⛅ Stația Meteo IoT</h1>
+    <div class="status-bar" id="last-update">Se conectează la server...</div>
+
+    <div class="dashboard-container">
+        
+        <div class="card card-indoor">
+            <h2>🏠 Interior <small style="font-size:0.5em; opacity:0.7">(ESP32 + BME680)</small></h2>
+            
+            <div class="data-row">
+                <div class="label">🌡️ Temperatură</div>
+                <div class="value-group">
+                    <span class="value" id="val-in-temp">--</span><span class="unit">°C</span>
+                </div>
+            </div>
+
+            <div class="data-row">
+                <div class="label">💧 Umiditate</div>
+                <div class="value-group">
+                    <span class="value" id="val-in-hum">--</span><span class="unit">%</span>
+                </div>
+            </div>
+
+            <div class="data-row">
+                <div class="label">⏲️ Presiune</div>
+                <div class="value-group">
+                    <span class="value" id="val-in-press">--</span><span class="unit">hPa</span>
+                </div>
+            </div>
+
+            <div class="data-row">
+                <div class="label">🍃 Calitate Aer</div>
+                <div class="value-group">
+                    <span class="value" id="val-in-gas">--</span><span class="unit">kΩ</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card card-outdoor">
+            <h2>🌲 Exterior <small style="font-size:0.5em; opacity:0.7">(BME280 + MQ135)</small></h2>
+
+            <div class="data-row">
+                <div class="label">🌡️ Temperatură</div>
+                <div class="value-group">
+                    <span class="value" id="val-out-temp">--</span><span class="unit">°C</span>
+                </div>
+            </div>
+
+            <div class="data-row">
+                <div class="label">💧 Umiditate</div>
+                <div class="value-group">
+                    <span class="value" id="val-out-hum">--</span><span class="unit">%</span>
+                </div>
+            </div>
+
+            <div class="data-row">
+                <div class="label">⏲️ Presiune</div>
+                <div class="value-group">
+                    <span class="value" id="val-out-press">--</span><span class="unit">hPa</span>
+                </div>
+            </div>
+
+            <div class="data-row">
+                <div class="label">⚠️ Nivel Gaz (MQ)</div>
+                <div class="value-group">
+                    <span class="value" id="val-out-gas">--</span><span class="unit">ppm</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>Proiect IoT - Reactualizare automată la 30 secunde</footer>
+
+    <script>
+        // ==========================================
+        // CONFIGURARE (Modifică doar aici!)
+        // ==========================================
+        const channelID = 'YOUR_CHANNEL_ID';    // Ex: 123456 (fără ghilimele dacă e număr, cu dacă e string, merge oricum)
+        const readApiKey = 'YOUR_READ_API_KEY'; // Ex: 'ABC123456789'
+        // ==========================================
+
+        // Mapare: Care Field din ThingSpeak merge la care ID din HTML?
+        // Field 1-4 = Indoor | Field 5-8 = Outdoor
+        const fieldMap = {
+            field1: 'val-in-temp',
+            field2: 'val-in-hum',
+            field3: 'val-in-press',
+            field4: 'val-in-gas',
+            field5: 'val-out-temp',
+            field6: 'val-out-hum',
+            field7: 'val-out-press',
+            field8: 'val-out-gas'
+        };
+
+        async function getData() {
+            const url = `https://api.thingspeak.com/channels/${channelID}/feeds.json?api_key=${readApiKey}&results=1`;
+            const statusDiv = document.getElementById('last-update');
+
+            try {
+                statusDiv.innerHTML = '<span class="blink">Se actualizează...</span>';
+                
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Eroare rețea');
+                
+                const data = await response.json();
+
+                // Verificăm dacă există feed-uri
+                if (data.feeds && data.feeds.length > 0) {
+                    const feed = data.feeds[0];
+                    
+                    // Afișăm ora ultimei actualizări
+                    const date = new Date(feed.created_at);
+                    statusDiv.innerText = 'Ultima actualizare: ' + date.toLocaleString('ro-RO');
+
+                    // Populăm valorile în pagină
+                    for (const [key, elementId] of Object.entries(fieldMap)) {
+                        const element = document.getElementById(elementId);
+                        if (feed[key] !== null && feed[key] !== undefined) {
+                            // Rotunjim la 1 zecimală
+                            element.innerText = parseFloat(feed[key]).toFixed(1);
+                        } else {
+                            element.innerText = "--";
+                        }
+                    }
+                } else {
+                    statusDiv.innerText = 'Canalul ThingSpeak este gol momentan.';
+                }
+
+            } catch (error) {
+                console.error(error);
+                statusDiv.innerText = 'Eroare la conectarea cu ThingSpeak. Verifică ID-ul!';
+                statusDiv.style.color = '#ef4444';
+            }
+        }
+
+        // Pornim prima citire
+        getData();
+
+        // Setăm să citească automat la fiecare 30 secunde
+        setInterval(getData, 30000);
+
+    </script>
+</body>
+</html>
