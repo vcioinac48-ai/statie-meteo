@@ -214,21 +214,21 @@
         // ==========================================
         // CONFIGURARE (Modifică doar aici!)
         // ==========================================
-        const channelID = 'YOUR_CHANNEL_ID';    // Ex: 123456 (fără ghilimele dacă e număr, cu dacă e string, merge oricum)
-        const readApiKey = 'YOUR_READ_API_KEY'; // Ex: 'ABC123456789'
+        const channelID = 3199207;    // Ex: 123456 (fără ghilimele dacă e număr, cu dacă e string, merge oricum)
+        const readApiKey = 'RRL6G5899NKOX890'; // Ex: 'ABC123456789'
         // ==========================================
 
         // Mapare: Care Field din ThingSpeak merge la care ID din HTML?
         // Field 1-4 = Indoor | Field 5-8 = Outdoor
         const fieldMap = {
-            field1: 'val-in-temp',
-            field2: 'val-in-hum',
-            field3: 'val-in-press',
-            field4: 'val-in-gas',
-            field5: 'val-out-temp',
-            field6: 'val-out-hum',
-            field7: 'val-out-press',
-            field8: 'val-out-gas'
+            field1: 'Temperatura-Interior',
+            field2: 'Umiditate-Interior',
+            field3: 'Presiune-Interior',
+            field4: 'Calitatea Aerului-Interior',
+            field5: 'Temperatura-Exterior',
+            field6: 'Umiditate-Exterior',
+            field7: 'Presiune-Exterior',
+            field8: 'Calitatea Aerului-Exterior'
         };
 
         async function getData() {
