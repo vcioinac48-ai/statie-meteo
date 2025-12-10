@@ -104,6 +104,9 @@
 
         .value-group {
             text-align: right;
+            display: flex;
+            align-items: center;
+            gap: 5px; /* Spatiu intre numar si unitate */
         }
 
         .value {
@@ -117,6 +120,23 @@
             color: #94a3b8;
             margin-left: 2px;
         }
+
+        /* --- STIL PENTRU BULINE (Traffic Light) --- */
+        .status-dot {
+            height: 12px;
+            width: 12px;
+            background-color: #475569; /* Gri initial */
+            border-radius: 50%;
+            display: inline-block;
+            margin-left: 8px;
+            transition: background-color 0.3s;
+        }
+        
+        /* Culorile active */
+        .status-green { background-color: #2ecc71; box-shadow: 0 0 8px #2ecc71; }
+        .status-yellow { background-color: #f1c40f; box-shadow: 0 0 8px #f1c40f; }
+        .status-red { background-color: #e74c3c; box-shadow: 0 0 10px #e74c3c; }
+
 
         /* Loading animation */
         .blink {
@@ -148,28 +168,29 @@
             <div class="data-row">
                 <div class="label">🌡️ Temperatură</div>
                 <div class="value-group">
-                    <span class="value" id="val-in-temp">--</span><span class="unit">°C</span>
+                    <span class="value" id="Temperatura-Interior">--</span><span class="unit">°C</span>
                 </div>
             </div>
 
             <div class="data-row">
                 <div class="label">💧 Umiditate</div>
                 <div class="value-group">
-                    <span class="value" id="val-in-hum">--</span><span class="unit">%</span>
+                    <span class="value" id="Umiditate-Interior">--</span><span class="unit">%</span>
                 </div>
             </div>
 
             <div class="data-row">
                 <div class="label">⏲️ Presiune</div>
                 <div class="value-group">
-                    <span class="value" id="val-in-press">--</span><span class="unit">hPa</span>
+                    <span class="value" id="Presiune-Interior">--</span><span class="unit">hPa</span>
                 </div>
             </div>
 
             <div class="data-row">
                 <div class="label">🍃 Calitate Aer</div>
                 <div class="value-group">
-                    <span class="value" id="val-in-gas">--</span><span class="unit">kΩ</span>
+                    <span class="value" id="Calitatea Aerului-Interior">--</span><span class="unit">AQI</span>
+                    <span id="dot-interior" class="status-dot"></span>
                 </div>
             </div>
         </div>
@@ -180,28 +201,29 @@
             <div class="data-row">
                 <div class="label">🌡️ Temperatură</div>
                 <div class="value-group">
-                    <span class="value" id="val-out-temp">--</span><span class="unit">°C</span>
+                    <span class="value" id="Temperatura-Exterior">--</span><span class="unit">°C</span>
                 </div>
             </div>
 
             <div class="data-row">
                 <div class="label">💧 Umiditate</div>
                 <div class="value-group">
-                    <span class="value" id="val-out-hum">--</span><span class="unit">%</span>
+                    <span class="value" id="Umiditate-Exterior">--</span><span class="unit">%</span>
                 </div>
             </div>
 
             <div class="data-row">
                 <div class="label">⏲️ Presiune</div>
                 <div class="value-group">
-                    <span class="value" id="val-out-press">--</span><span class="unit">hPa</span>
+                    <span class="value" id="Presiune-Exterior">--</span><span class="unit">hPa</span>
                 </div>
             </div>
 
             <div class="data-row">
-                <div class="label">⚠️ Nivel Gaz (MQ)</div>
+                <div class="label">🍃 Calitate Aer</div>
                 <div class="value-group">
-                    <span class="value" id="val-out-gas">--</span><span class="unit">ppm</span>
+                    <span class="value" id="Calitatea Aerului-Exterior">--</span><span class="unit">AQI</span>
+                    <span id="dot-exterior" class="status-dot"></span>
                 </div>
             </div>
         </div>
@@ -212,14 +234,13 @@
 
     <script>
         // ==========================================
-        // CONFIGURARE (Modifică doar aici!)
+        // CONFIGURARE
         // ==========================================
-        const channelID = 3199207;    // Ex: 123456 (fără ghilimele dacă e număr, cu dacă e string, merge oricum)
-        const readApiKey = 'RRL6G5899NKOX890'; // Ex: 'ABC123456789'
+        const channelID = 3199207;     
+        const readApiKey = 'RRL6G5899NKOX890'; 
         // ==========================================
 
-        // Mapare: Care Field din ThingSpeak merge la care ID din HTML?
-        // Field 1-4 = Indoor | Field 5-8 = Outdoor
+        // MAPAREA TA (AM PĂSTRAT-O EXACT AȘA)
         const fieldMap = {
             field1: 'Temperatura-Interior',
             field2: 'Umiditate-Interior',
@@ -236,29 +257,58 @@
             const statusDiv = document.getElementById('last-update');
 
             try {
-                statusDiv.innerHTML = '<span class="blink">Se actualizează...</span>';
+                if(statusDiv.innerText === 'Se conectează la server...') {
+                    statusDiv.innerHTML = '<span class="blink">Se descarcă datele...</span>';
+                }
                 
                 const response = await fetch(url);
                 if (!response.ok) throw new Error('Eroare rețea');
                 
                 const data = await response.json();
 
-                // Verificăm dacă există feed-uri
                 if (data.feeds && data.feeds.length > 0) {
                     const feed = data.feeds[0];
                     
-                    // Afișăm ora ultimei actualizări
                     const date = new Date(feed.created_at);
                     statusDiv.innerText = 'Ultima actualizare: ' + date.toLocaleString('ro-RO');
 
-                    // Populăm valorile în pagină
+                    // Parcurgem toate campurile din maparea ta
                     for (const [key, elementId] of Object.entries(fieldMap)) {
                         const element = document.getElementById(elementId);
+                        
                         if (feed[key] !== null && feed[key] !== undefined) {
-                            // Rotunjim la 1 zecimală
-                            element.innerText = parseFloat(feed[key]).toFixed(1);
+                            let rawValue = parseFloat(feed[key]);
+
+                            // --- LOGICA SPECIALA PENTRU CAMPURILE DE AER ---
+
+                            // 1. Daca e Calitate Aer EXTERIOR (Field 8)
+                            if (key === 'field8') {
+                                // Formula PPM -> AQI (estimare)
+                                let aqiValue = (rawValue - 400) / 4;
+                                if (aqiValue < 0) aqiValue = 0;
+                                aqiValue = Math.round(aqiValue);
+                                
+                                element.innerText = aqiValue;
+                                // Actualizam bulina asociata exteriorului
+                                updateQualityColor('dot-exterior', aqiValue);
+                            } 
+                            
+                            // 2. Daca e Calitate Aer INTERIOR (Field 4)
+                            else if (key === 'field4') {
+                                // Valoarea e deja AQI
+                                let finalValue = Math.round(rawValue);
+                                element.innerText = finalValue;
+                                // Actualizam bulina asociata interiorului
+                                updateQualityColor('dot-interior', finalValue);
+                            }
+
+                            // 3. Orice altceva (Temp, Hum, Press)
+                            else {
+                                element.innerText = rawValue.toFixed(1);
+                            }
+
                         } else {
-                            element.innerText = "--";
+                            if(element) element.innerText = "--";
                         }
                     }
                 } else {
@@ -267,16 +317,32 @@
 
             } catch (error) {
                 console.error(error);
-                statusDiv.innerText = 'Eroare la conectarea cu ThingSpeak. Verifică ID-ul!';
+                statusDiv.innerText = 'Eroare conexiune ThingSpeak!';
                 statusDiv.style.color = '#ef4444';
             }
         }
 
-        // Pornim prima citire
-        getData();
+        // --- FUNCȚIA PENTRU CULORI (SEMAFOR) ---
+        function updateQualityColor(dotId, value) {
+            const dot = document.getElementById(dotId);
+            if (!dot) return;
 
-        // Setăm să citească automat la fiecare 30 secunde
-        setInterval(getData, 30000);
+            // Stergem culorile vechi
+            dot.classList.remove('status-green', 'status-yellow', 'status-red');
+
+            // Reguli pentru AQI
+            if (value <= 50) {
+                dot.classList.add('status-green'); 
+            } else if (value <= 150) {
+                dot.classList.add('status-yellow'); 
+            } else {
+                dot.classList.add('status-red');   
+            }
+        }
+
+        // Pornim citirea
+        getData();
+        setInterval(getData, 30000); 
 
     </script>
 </body>
