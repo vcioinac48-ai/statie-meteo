@@ -7,15 +7,17 @@
     <style>
         /* --- STILIZARE GENERALĂ (CSS) --- */
         :root {
-            --bg-color: #0f172a;       
             --text-main: #f8fafc;      
             --accent: #38bdf8;         
-            --warning: #facc15;        
+            --warning: #facc15;
+            /* Definim aici link-urile pentru imagini ca sa fie usor de schimbat */
+            --bg-neutral: url('https://images.unsplash.com/photo-1494438615416-9394b7db155e?auto=format&fit=crop&w=1920&q=80'); /* Imagine neutra (abstracta/cer) */
+            --bg-indoor: url('https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=1920&q=80');  /* Living */
+            --bg-outdoor: url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1920&q=80'); /* Padure/Gradina */
         }
 
         body {
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
             color: var(--text-main);
             margin: 0;
             padding: 20px;
@@ -23,6 +25,15 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
+
+            /* --- CONFIGURARE FUNDAL DINAMIC --- */
+            /* Setam fundalul implicit (neutru) cu un strat intunecat peste el */
+            background-image: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.9)), var(--bg-neutral);
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed; /* Imaginea sta pe loc cand dai scroll */
+            /* Tranzitie lina cand se schimba imaginea */
+            transition: background-image 0.5s ease-in-out;
         }
 
         h1 {
@@ -30,76 +41,65 @@
             font-weight: 300;
             letter-spacing: 1px;
             margin-bottom: 5px;
-            z-index: 10;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
 
         .status-bar {
             font-size: 0.85rem;
-            color: #94a3b8;
+            color: #cbd5e1;
             margin-bottom: 30px;
             text-align: center;
-            z-index: 10;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
         }
 
         /* --- GRID PENTRU CARDURI --- */
         .dashboard-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
+            gap: 30px;
             width: 100%;
             max-width: 900px;
-            z-index: 10;
         }
 
-        /* --- DESIGN CARDURI (AICI E SCHIMBAREA MAJORĂ) --- */
+        /* --- DESIGN CARDURI (MODIFICAT PENTRU TRANSPARENȚĂ) --- */
         .card {
             border-radius: 20px;
             padding: 25px;
-            box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.5); /* Umbra mai puternica */
-            transition: transform 0.3s ease;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); /* Umbra mai moderna */
+            transition: transform 0.3s ease, border-color 0.3s ease;
             position: relative;
             overflow: hidden;
             
-            /* Setari pentru imaginea de fundal */
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
+            /* --- CULOAREA NEAGRĂ TRANSPARENTĂ --- */
+            background-color: rgba(0, 0, 0, 0.5); /* Negru 50% transparent */
+            backdrop-filter: blur(10px);          /* Efect de sticla mata (blur in spate) */
+            border: 1px solid rgba(255, 255, 255, 0.1); /* Bordura subtire alba */
             color: white;
-            border: 1px solid rgba(255,255,255,0.1);
         }
 
         .card:hover {
-            transform: translateY(-8px);
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.3); /* Bordura se lumineaza la hover */
         }
 
-        /* --- CARD INDOOR CU IMAGINE --- */
         .card-indoor {
-            /* Aici este "magia". Avem un gradient negru (0.8) peste poza.
-               Poti schimba link-ul din url('...') cu orice alta poza.
-            */
-            background-image: linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.85)), 
-                              url('https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=800&q=80');
             border-top: 4px solid #4ade80; 
         }
 
-        /* --- CARD OUTDOOR CU IMAGINE --- */
         .card-outdoor {
-            /* Imagine de padure/gradina */
-            background-image: linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(0,0,0,0.85)), 
-                              url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=800&q=80');
             border-top: 4px solid #f87171; 
         }
 
         .card h2 {
             margin-top: 0;
             font-size: 1.6rem;
-            border-bottom: 1px solid rgba(255,255,255,0.3);
+            border-bottom: 1px solid rgba(255,255,255,0.2);
             padding-bottom: 15px;
             margin-bottom: 25px;
             display: flex;
             align-items: center;
             gap: 10px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5); /* Umbra la text titlu */
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
 
         /* --- LINIILE DE DATE --- */
@@ -109,18 +109,16 @@
             align-items: center;
             margin-bottom: 15px;
             padding: 10px 15px;
-            
-            /* Fundal semi-transparent pentru fiecare rand, ca sa se citeasca bine */
-            background-color: rgba(255, 255, 255, 0.05); 
+            /* Fundal foarte subtil pentru randuri */
+            background-color: rgba(255, 255, 255, 0.03); 
             border-radius: 10px;
-            backdrop-filter: blur(2px);
         }
 
         .label {
             display: flex;
             align-items: center;
             gap: 10px;
-            color: #e2e8f0; /* Alb putin mai deschis */
+            color: #e2e8f0;
             font-weight: 500;
             text-shadow: 0 1px 2px rgba(0,0,0,0.8);
         }
@@ -135,7 +133,7 @@
         .value {
             font-size: 1.5rem;
             font-weight: 700;
-            color: #fff; /* Alb pur pentru contrast maxim pe poza */
+            color: #fff;
             text-shadow: 0 2px 4px rgba(0,0,0,1);
         }
 
@@ -146,26 +144,25 @@
             text-shadow: 0 1px 2px rgba(0,0,0,1);
         }
 
-        /* --- STIL PENTRU BULINE --- */
+        /* --- BULINE --- */
         .status-dot {
-            height: 14px;
-            width: 14px;
-            background-color: #64748b;
-            border-radius: 50%;
-            display: inline-block;
-            margin-left: 10px;
-            border: 2px solid rgba(255,255,255,0.2); /* Bordura alba fina */
+            height: 14px; width: 14px; background-color: #64748b;
+            border-radius: 50%; display: inline-block; margin-left: 10px;
+            border: 2px solid rgba(255,255,255,0.2);
         }
-        
         .status-green { background-color: #2ecc71; box-shadow: 0 0 10px #2ecc71; }
         .status-yellow { background-color: #f1c40f; box-shadow: 0 0 10px #f1c40f; }
         .status-red { background-color: #e74c3c; box-shadow: 0 0 12px #e74c3c; }
 
-        /* Footer */
+        /* Loading animation */
+        .blink { animation: blinker 1.5s linear infinite; color: var(--warning); }
+        @keyframes blinker { 50% { opacity: 0.3; } }
+
         footer {
             margin-top: 50px;
             font-size: 0.8rem;
-            color: #64748b;
+            color: #94a3b8;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
         }
     </style>
 </head>
@@ -176,7 +173,7 @@
 
     <div class="dashboard-container">
         
-        <div class="card card-indoor">
+        <div class="card card-indoor" id="card-indoor-trigger">
             <h2>🏠 Interior <small style="font-size:0.5em; opacity:0.8">(Living)</small></h2>
             
             <div class="data-row">
@@ -185,21 +182,18 @@
                     <span class="value" id="Temperatura-Interior">--</span><span class="unit">°C</span>
                 </div>
             </div>
-
             <div class="data-row">
                 <div class="label">💧 Umiditate</div>
                 <div class="value-group">
                     <span class="value" id="Umiditate-Interior">--</span><span class="unit">%</span>
                 </div>
             </div>
-
             <div class="data-row">
                 <div class="label">⏲️ Presiune</div>
                 <div class="value-group">
                     <span class="value" id="Presiune-Interior">--</span><span class="unit">hPa</span>
                 </div>
             </div>
-
             <div class="data-row">
                 <div class="label">🍃 Calitate Aer</div>
                 <div class="value-group">
@@ -209,7 +203,7 @@
             </div>
         </div>
 
-        <div class="card card-outdoor">
+        <div class="card card-outdoor" id="card-outdoor-trigger">
             <h2>🌲 Exterior <small style="font-size:0.5em; opacity:0.8">(Grădină)</small></h2>
 
             <div class="data-row">
@@ -218,21 +212,18 @@
                     <span class="value" id="Temperatura-Exterior">--</span><span class="unit">°C</span>
                 </div>
             </div>
-
             <div class="data-row">
                 <div class="label">💧 Umiditate</div>
                 <div class="value-group">
                     <span class="value" id="Umiditate-Exterior">--</span><span class="unit">%</span>
                 </div>
             </div>
-
             <div class="data-row">
                 <div class="label">⏲️ Presiune</div>
                 <div class="value-group">
                     <span class="value" id="Presiune-Exterior">--</span><span class="unit">hPa</span>
                 </div>
             </div>
-
             <div class="data-row">
                 <div class="label">🍃 Calitate Aer</div>
                 <div class="value-group">
@@ -245,6 +236,47 @@
     </div>
 
     <footer>Proiect IoT - Reactualizare automată la 30 secunde</footer>
+
+    <script>
+        // 1. Selectam elementele
+        const bodyElement = document.body;
+        const indoorCardBtn = document.getElementById('card-indoor-trigger');
+        const outdoorCardBtn = document.getElementById('card-outdoor-trigger');
+
+        // 2. Definim stilurile de fundal (Gradient + Imaginea din CSS variables)
+        // Folosim getComputedStyle ca sa luam URL-urile definite sus in :root
+        const rootStyles = getComputedStyle(document.documentElement);
+        const neutralBgImg = rootStyles.getPropertyValue('--bg-neutral').trim();
+        const indoorBgImg = rootStyles.getPropertyValue('--bg-indoor').trim();
+        const outdoorBgImg = rootStyles.getPropertyValue('--bg-outdoor').trim();
+
+        // Stratul intunecat care se aplica peste poze
+        const darkOverlay = "linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.9))";
+
+        // 3. Functii pentru schimbare
+        function setIndoorBackground() {
+            bodyElement.style.backgroundImage = `${darkOverlay}, ${indoorBgImg}`;
+        }
+        function setOutdoorBackground() {
+            bodyElement.style.backgroundImage = `${darkOverlay}, ${outdoorBgImg}`;
+        }
+        function setDefaultBackground() {
+            bodyElement.style.backgroundImage = `${darkOverlay}, ${neutralBgImg}`;
+        }
+
+        // 4. Adaugam "ascultatori" de evenimente (Mouse Enter / Mouse Leave)
+        
+        // Pentru Indoor
+        indoorCardBtn.addEventListener('mouseenter', setIndoorBackground);
+        indoorCardBtn.addEventListener('mouseleave', setDefaultBackground);
+
+        // Pentru Outdoor
+        outdoorCardBtn.addEventListener('mouseenter', setOutdoorBackground);
+        outdoorCardBtn.addEventListener('mouseleave', setDefaultBackground);
+
+        // Setam initial fundalul default
+        setDefaultBackground();
+    </script>
 
     <script>
         const channelID = 3199207;     
@@ -269,10 +301,8 @@
                 if(statusDiv.innerText === 'Se conectează la server...') {
                     statusDiv.innerHTML = '<span class="blink">Se descarcă datele...</span>';
                 }
-                
                 const response = await fetch(url);
                 if (!response.ok) throw new Error('Eroare rețea');
-                
                 const data = await response.json();
 
                 if (data.feeds && data.feeds.length > 0) {
@@ -282,23 +312,19 @@
 
                     for (const [key, elementId] of Object.entries(fieldMap)) {
                         const element = document.getElementById(elementId);
-                        
                         if (feed[key] !== null && feed[key] !== undefined) {
                             let rawValue = parseFloat(feed[key]);
-
                             if (key === 'field8') {
                                 let aqiValue = (rawValue - 400) / 4;
                                 if (aqiValue < 0) aqiValue = 0;
                                 aqiValue = Math.round(aqiValue);
                                 element.innerText = aqiValue;
                                 updateQualityColor('dot-exterior', aqiValue);
-                            } 
-                            else if (key === 'field4') {
+                            } else if (key === 'field4') {
                                 let finalValue = Math.round(rawValue);
                                 element.innerText = finalValue;
                                 updateQualityColor('dot-interior', finalValue);
-                            }
-                            else {
+                            } else {
                                 element.innerText = rawValue.toFixed(1);
                             }
                         } else {
@@ -308,7 +334,6 @@
                 } else {
                     statusDiv.innerText = 'Canalul ThingSpeak este gol momentan.';
                 }
-
             } catch (error) {
                 console.error(error);
                 statusDiv.innerText = 'Eroare conexiune ThingSpeak!';
@@ -320,16 +345,10 @@
             const dot = document.getElementById(dotId);
             if (!dot) return;
             dot.classList.remove('status-green', 'status-yellow', 'status-red');
-
-            if (value <= 50) {
-                dot.classList.add('status-green'); 
-            } else if (value <= 150) {
-                dot.classList.add('status-yellow'); 
-            } else {
-                dot.classList.add('status-red');   
-            }
+            if (value <= 50) dot.classList.add('status-green'); 
+            else if (value <= 150) dot.classList.add('status-yellow'); 
+            else dot.classList.add('status-red');   
         }
-
         getData();
         setInterval(getData, 30000); 
     </script>
