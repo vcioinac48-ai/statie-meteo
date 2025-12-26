@@ -7,13 +7,16 @@
     <style>
         /* --- STILIZARE GENERALĂ (CSS) --- */
         :root {
-            --text-main: #f8fafc;      
-            --accent: #38bdf8;         
+            --text-main: #f8fafc;       
+            --accent: #38bdf8;          
             --warning: #facc15;
-            /* Definim aici link-urile pentru imagini ca sa fie usor de schimbat */
-            --bg-neutral: url('https://images.unsplash.com/photo-1494438615416-9394b7db155e?auto=format&fit=crop&w=1920&q=80'); /* Imagine neutra (abstracta/cer) */
-            --bg-indoor: url('https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=1920&q=80');  /* Living */
-            --bg-outdoor: url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1920&q=80'); /* Padure/Gradina */
+            
+            /* --- AICI AM PUS IMAGINEA NOUĂ (VARIANTA 1) --- */
+            --bg-neutral: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=80');
+            
+            /* Imaginile pentru hover */
+            --bg-indoor: url('https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=1920&q=80');  
+            --bg-outdoor: url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1920&q=80'); 
         }
 
         body {
@@ -27,12 +30,10 @@
             min-height: 100vh;
 
             /* --- CONFIGURARE FUNDAL DINAMIC --- */
-            /* Setam fundalul implicit (neutru) cu un strat intunecat peste el */
-            background-image: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.9)), var(--bg-neutral);
+            background-image: linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.8)), var(--bg-neutral);
             background-size: cover;
             background-position: center;
-            background-attachment: fixed; /* Imaginea sta pe loc cand dai scroll */
-            /* Tranzitie lina cand se schimba imaginea */
+            background-attachment: fixed;
             transition: background-image 0.5s ease-in-out;
         }
 
@@ -61,34 +62,29 @@
             max-width: 900px;
         }
 
-        /* --- DESIGN CARDURI (MODIFICAT PENTRU TRANSPARENȚĂ) --- */
+        /* --- DESIGN CARDURI --- */
         .card {
             border-radius: 20px;
             padding: 25px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); /* Umbra mai moderna */
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
             transition: transform 0.3s ease, border-color 0.3s ease;
             position: relative;
             overflow: hidden;
             
-            /* --- CULOAREA NEAGRĂ TRANSPARENTĂ --- */
-            background-color: rgba(0, 0, 0, 0.5); /* Negru 50% transparent */
-            backdrop-filter: blur(10px);          /* Efect de sticla mata (blur in spate) */
-            border: 1px solid rgba(255, 255, 255, 0.1); /* Bordura subtire alba */
+            /* Sticla mata */
+            background-color: rgba(0, 0, 0, 0.5); 
+            backdrop-filter: blur(10px);          
+            border: 1px solid rgba(255, 255, 255, 0.1); 
             color: white;
         }
 
         .card:hover {
             transform: translateY(-5px);
-            border-color: rgba(255, 255, 255, 0.3); /* Bordura se lumineaza la hover */
+            border-color: rgba(255, 255, 255, 0.3);
         }
 
-        .card-indoor {
-            border-top: 4px solid #4ade80; 
-        }
-
-        .card-outdoor {
-            border-top: 4px solid #f87171; 
-        }
+        .card-indoor { border-top: 4px solid #4ade80; }
+        .card-outdoor { border-top: 4px solid #f87171; }
 
         .card h2 {
             margin-top: 0;
@@ -102,14 +98,12 @@
             text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
 
-        /* --- LINIILE DE DATE --- */
         .data-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
             padding: 10px 15px;
-            /* Fundal foarte subtil pentru randuri */
             background-color: rgba(255, 255, 255, 0.03); 
             border-radius: 10px;
         }
@@ -154,7 +148,6 @@
         .status-yellow { background-color: #f1c40f; box-shadow: 0 0 10px #f1c40f; }
         .status-red { background-color: #e74c3c; box-shadow: 0 0 12px #e74c3c; }
 
-        /* Loading animation */
         .blink { animation: blinker 1.5s linear infinite; color: var(--warning); }
         @keyframes blinker { 50% { opacity: 0.3; } }
 
@@ -197,7 +190,7 @@
             <div class="data-row">
                 <div class="label">🍃 Calitate Aer</div>
                 <div class="value-group">
-                    <span class="value" id="Calitatea Aerului-Interior">--</span><span class="unit">AQI</span>
+                    <span class="value" id="Calitatea Aerului-Interior">--</span><span class="unit">kΩ</span>
                     <span id="dot-interior" class="status-dot"></span>
                 </div>
             </div>
@@ -227,7 +220,7 @@
             <div class="data-row">
                 <div class="label">🍃 Calitate Aer</div>
                 <div class="value-group">
-                    <span class="value" id="Calitatea Aerului-Exterior">--</span><span class="unit">AQI</span>
+                    <span class="value" id="Calitatea Aerului-Exterior">--</span><span class="unit">Raw</span>
                     <span id="dot-exterior" class="status-dot"></span>
                 </div>
             </div>
@@ -238,22 +231,17 @@
     <footer>Proiect IoT - Reactualizare automată la 30 secunde</footer>
 
     <script>
-        // 1. Selectam elementele
         const bodyElement = document.body;
         const indoorCardBtn = document.getElementById('card-indoor-trigger');
         const outdoorCardBtn = document.getElementById('card-outdoor-trigger');
 
-        // 2. Definim stilurile de fundal (Gradient + Imaginea din CSS variables)
-        // Folosim getComputedStyle ca sa luam URL-urile definite sus in :root
         const rootStyles = getComputedStyle(document.documentElement);
         const neutralBgImg = rootStyles.getPropertyValue('--bg-neutral').trim();
         const indoorBgImg = rootStyles.getPropertyValue('--bg-indoor').trim();
         const outdoorBgImg = rootStyles.getPropertyValue('--bg-outdoor').trim();
 
-        // Stratul intunecat care se aplica peste poze
-        const darkOverlay = "linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.9))";
+        const darkOverlay = "linear-gradient(rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.8))"; // Putin mai luminos overlay-ul
 
-        // 3. Functii pentru schimbare
         function setIndoorBackground() {
             bodyElement.style.backgroundImage = `${darkOverlay}, ${indoorBgImg}`;
         }
@@ -264,22 +252,16 @@
             bodyElement.style.backgroundImage = `${darkOverlay}, ${neutralBgImg}`;
         }
 
-        // 4. Adaugam "ascultatori" de evenimente (Mouse Enter / Mouse Leave)
-        
-        // Pentru Indoor
         indoorCardBtn.addEventListener('mouseenter', setIndoorBackground);
         indoorCardBtn.addEventListener('mouseleave', setDefaultBackground);
-
-        // Pentru Outdoor
         outdoorCardBtn.addEventListener('mouseenter', setOutdoorBackground);
         outdoorCardBtn.addEventListener('mouseleave', setDefaultBackground);
 
-        // Setam initial fundalul default
         setDefaultBackground();
     </script>
 
     <script>
-        const channelID = 3199207;     
+        const channelID = 3199207;      
         const readApiKey = 'RRL6G5899NKOX890'; 
         
         const fieldMap = {
@@ -314,16 +296,20 @@
                         const element = document.getElementById(elementId);
                         if (feed[key] !== null && feed[key] !== undefined) {
                             let rawValue = parseFloat(feed[key]);
+                            
+                            // --- LOGICA PENTRU EXTERIOR (MQ-135) ---
                             if (key === 'field8') {
-                                let aqiValue = (rawValue - 400) / 4;
-                                if (aqiValue < 0) aqiValue = 0;
-                                aqiValue = Math.round(aqiValue);
-                                element.innerText = aqiValue;
-                                updateQualityColor('dot-exterior', aqiValue);
+                                // Afisam valoarea bruta (ex: 205)
+                                let displayValue = Math.round(rawValue); 
+                                element.innerText = displayValue;
+                                updateQualityColorStandard(displayValue, 'dot-exterior');
+
+                            // --- LOGICA PENTRU INTERIOR (BME680) ---
                             } else if (key === 'field4') {
                                 let finalValue = Math.round(rawValue);
                                 element.innerText = finalValue;
-                                updateQualityColor('dot-interior', finalValue);
+                                updateQualityColorBME680(finalValue, 'dot-interior');
+
                             } else {
                                 element.innerText = rawValue.toFixed(1);
                             }
@@ -341,14 +327,28 @@
             }
         }
 
-        function updateQualityColor(dotId, value) {
+        // MQ-135 (Mic = Bine, Mare = Rau)
+        function updateQualityColorStandard(value, dotId) {
             const dot = document.getElementById(dotId);
             if (!dot) return;
             dot.classList.remove('status-green', 'status-yellow', 'status-red');
-            if (value <= 50) dot.classList.add('status-green'); 
-            else if (value <= 150) dot.classList.add('status-yellow'); 
-            else dot.classList.add('status-red');   
+            
+            if (value <= 300) dot.classList.add('status-green');      
+            else if (value <= 800) dot.classList.add('status-yellow'); 
+            else dot.classList.add('status-red');                      
         }
+
+        // BME680 (Mare = Bine, Mic = Rau)
+        function updateQualityColorBME680(value, dotId) {
+            const dot = document.getElementById(dotId);
+            if (!dot) return;
+            dot.classList.remove('status-green', 'status-yellow', 'status-red');
+            
+            if (value >= 50) dot.classList.add('status-green');       
+            else if (value >= 15) dot.classList.add('status-yellow'); 
+            else dot.classList.add('status-red');                     
+        }
+
         getData();
         setInterval(getData, 30000); 
     </script>
