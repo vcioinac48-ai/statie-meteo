@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Monitorizare Meteo IoT</title>
     <style>
-        /* --- STILURI CSS --- */
+        /* --- STILURI VIZUALE --- */
         :root {
             --text-main: #f8fafc;       
             --bg-neutral: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=80');
@@ -14,19 +14,18 @@
         }
 
         body {
-            font-family: sans-serif;
-            color: var(--text-main);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
+            font-family: sans-serif; color: var(--text-main); margin: 0; padding: 20px;
+            display: flex; flex-direction: column; align-items: center; min-height: 100vh;
             background-image: linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.8)), var(--bg-neutral);
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
+            background-size: cover; background-position: center; background-attachment: fixed;
             transition: background-image 0.5s ease-in-out;
+        }
+
+        /* LOG DE DEPANARE (Cutia Galbena) */
+        #debug-log {
+            background: #fff3cd; color: #856404; padding: 10px; border: 1px solid #ffeeba;
+            width: 90%; max-width: 800px; margin-bottom: 20px; border-radius: 5px;
+            font-family: monospace; font-size: 12px; display: block;
         }
 
         h1 { text-align: center; font-weight: 300; margin-bottom: 5px; }
@@ -35,10 +34,8 @@
 
         .card {
             border-radius: 20px; padding: 25px;
-            background-color: rgba(0, 0, 0, 0.5); 
-            backdrop-filter: blur(10px);          
-            border: 1px solid rgba(255, 255, 255, 0.1); 
-            color: white;
+            background-color: rgba(0, 0, 0, 0.5); backdrop-filter: blur(10px);          
+            border: 1px solid rgba(255, 255, 255, 0.1); color: white;
             transition: transform 0.3s;
         }
         .card:hover { transform: translateY(-5px); border-color: rgba(255, 255, 255, 0.3); }
@@ -53,7 +50,6 @@
         .status-dot { height: 14px; width: 14px; background-color: #64748b; border-radius: 50%; display: inline-block; margin-left: 10px; border: 2px solid rgba(255,255,255,0.2); }
         .status-green { background-color: #2ecc71; box-shadow: 0 0 10px #2ecc71; }
         .status-yellow { background-color: #f1c40f; box-shadow: 0 0 10px #f1c40f; }
-        .status-orange { background-color: #e67e22; box-shadow: 0 0 10px #e67e22; }
         .status-red { background-color: #e74c3c; box-shadow: 0 0 12px #e74c3c; }
         
         .blink { animation: blinker 1.5s linear infinite; color: #facc15; }
@@ -63,11 +59,12 @@
 </head>
 <body>
 
+    <div id="debug-log">System Log: Inițializare...</div>
+
     <h1>⛅ Stația Meteo IoT</h1>
     <div class="status-bar" id="last-update">Se conectează la server...</div>
 
     <div class="dashboard-container">
-        
         <div class="card card-indoor" id="card-indoor-trigger">
             <h2>🏠 Interior <small style="font-size:0.5em; opacity:0.8">(Living)</small></h2>
             <div class="data-row"><div>🌡️ Temperatură</div><div><span class="value" id="Temperatura-Interior">--</span><span class="unit">°C</span></div></div>
@@ -83,12 +80,10 @@
             <div class="data-row"><div>⏲️ Presiune</div><div><span class="value" id="Presiune-Exterior">--</span><span class="unit">hPa</span></div></div>
             <div class="data-row"><div>🍃 Calitate Aer</div><div><span class="value" id="Calitatea Aerului-Exterior">--</span><span class="unit">AQI</span><span id="dot-exterior" class="status-dot"></span></div></div>
         </div>
-
     </div>
-    <footer>Proiect IoT - Update la 30 secunde</footer>
+    <footer>Proiect IoT</footer>
 
     <script>
-        // -- FUNDALURI --
         const body = document.body;
         const root = getComputedStyle(document.documentElement);
         const overlay = "linear-gradient(rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.8))";
@@ -99,7 +94,6 @@
             if(type === 'outdoor') img = root.getPropertyValue('--bg-outdoor');
             body.style.backgroundImage = `${overlay}, ${img.trim()}`;
         }
-
         document.getElementById('card-indoor-trigger').onmouseenter = () => setBg('indoor');
         document.getElementById('card-indoor-trigger').onmouseleave = () => setBg('neutral');
         document.getElementById('card-outdoor-trigger').onmouseenter = () => setBg('outdoor');
@@ -107,72 +101,103 @@
     </script>
 
     <script>
-        // -- DATE IOT --
+        // Functie pentru a scrie in cutia galbena
+        function log(msg) {
+            const logBox = document.getElementById('debug-log');
+            logBox.innerHTML += "<br>> " + msg;
+            console.log(msg);
+        }
+
+        // Asteptam ca pagina sa se incarce complet
+        window.onload = function() {
+            log("Pagina incarcata. Pornesc scriptul de date...");
+            getData();
+            setInterval(getData, 30000);
+        };
+
         const channelID = 3199207;      
         const readApiKey = 'RRL6G5899NKOX890'; 
         
+        // Maparea ID-urilor din HTML
         const map = {
-            field1: 'Temperatura-Interior', field2: 'Umiditate-Interior', field3: 'Presiune-Interior', field4: 'Calitatea Aerului-Interior', 
-            field5: 'Temperatura-Exterior', field6: 'Umiditate-Exterior', field7: 'Presiune-Exterior', field8: 'Calitatea Aerului-Exterior' 
+            field1: 'Temperatura-Interior', 
+            field2: 'Umiditate-Interior', 
+            field3: 'Presiune-Interior', 
+            field4: 'Calitatea Aerului-Interior', 
+            field5: 'Temperatura-Exterior', 
+            field6: 'Umiditate-Exterior', 
+            field7: 'Presiune-Exterior', 
+            field8: 'Calitatea Aerului-Exterior' 
         };
 
         async function getData() {
+            log("Încep descărcarea datelor de la ThingSpeak...");
             const statusDiv = document.getElementById('last-update');
             const url = `https://api.thingspeak.com/channels/${channelID}/feeds.json?api_key=${readApiKey}&results=1`;
 
             try {
-                if(statusDiv.innerText.includes('Se conectează')) statusDiv.innerHTML = '<span class="blink">Se descarcă datele...</span>';
-                
                 const response = await fetch(url);
-                if (!response.ok) throw new Error('Nu pot contacta ThingSpeak');
+                log("Răspuns server primit: " + response.status);
+                
+                if (!response.ok) throw new Error('Eroare HTTP: ' + response.status);
+                
                 const data = await response.json();
+                log("Date JSON descărcate cu succes!");
 
                 if (data.feeds.length > 0) {
                     const f = data.feeds[0];
+                    log("Am găsit feed-ul creat la: " + f.created_at);
+                    
                     statusDiv.innerText = 'Actualizat: ' + new Date(f.created_at).toLocaleTimeString();
 
-                    // Procesare fiecare camp
-                    Object.keys(map).forEach(key => {
+                    // Luam fiecare camp la rand
+                    for (let key in map) {
                         const el = document.getElementById(map[key]);
-                        if(!el) return;
-
-                        if (f[key] != null) {
-                            let val = parseFloat(f[key]);
-                            
-                            // LOGICA AQI
-                            if (key === 'field8') { // Exterior
-                                let aqi = 25;
-                                if(val > 250) aqi = 60;
-                                if(val > 800) aqi = 130;
-                                el.innerText = aqi;
-                                setColor(aqi, 'dot-exterior');
-                            } 
-                            else if (key === 'field4') { // Interior
-                                let aqi = 20;
-                                if(val < 50) aqi = 50;
-                                if(val < 15) aqi = 140;
-                                el.innerText = aqi;
-                                setColor(aqi, 'dot-interior');
-                            } 
-                            else {
-                                el.innerText = val.toFixed(1);
+                        if(el) {
+                            if (f[key] != null) {
+                                let val = parseFloat(f[key]);
+                                // Logica AQI
+                                if (key === 'field8') { // Exterior
+                                    let aqi = 25;
+                                    if(val > 250) aqi = 60;
+                                    if(val > 800) aqi = 130;
+                                    el.innerText = aqi;
+                                    setColor(aqi, 'dot-exterior');
+                                } 
+                                else if (key === 'field4') { // Interior
+                                    let aqi = 20;
+                                    if(val < 50) aqi = 50;
+                                    if(val < 15) aqi = 140;
+                                    el.innerText = aqi;
+                                    setColor(aqi, 'dot-interior');
+                                } 
+                                else {
+                                    el.innerText = val.toFixed(1);
+                                }
+                            } else {
+                                el.innerText = "--";
                             }
-                        } else {
-                            el.innerText = "--";
                         }
-                    });
+                    }
+                    log("Date actualizate in pagina!");
+                } else {
+                    log("Nu există date in canal (feeds gol).");
                 }
             } catch (err) {
-                console.error(err);
+                log("EROARE CRITICĂ: " + err.message);
                 statusDiv.innerText = "Eroare: " + err.message;
                 statusDiv.style.color = "red";
-                // Aici e alerta care te va ajuta sa vezi ce e gresit
-                // alert("Eroare site: " + err.message); 
             }
         }
 
         function setColor(val, id) {
             const d = document.getElementById(id);
-            d.className = 'status-dot'; // Reset
+            if(!d) return;
+            d.className = 'status-dot'; 
             if(val <= 50) d.classList.add('status-green');
-            else if
+            else if(val <= 100) d.classList.add('status-yellow');
+            else d.classList.add('status-red');
+        }
+    </script>
+</body>
+</html>
