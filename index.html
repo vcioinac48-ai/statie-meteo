@@ -11,9 +11,10 @@
             --accent: #38bdf8;          
             --warning: #facc15;
             
-            /* FUNDAL NEUTRU (VARIATION 1 - DRAMATIC SKY) */
+            /* FUNDAL NEUTRU */
             --bg-neutral: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=80');
             
+            /* FUNDALURI HOVER */
             --bg-indoor: url('https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=1920&q=80');  
             --bg-outdoor: url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1920&q=80'); 
         }
@@ -28,6 +29,7 @@
             align-items: center;
             min-height: 100vh;
 
+            /* Fundal Dinamic */
             background-image: linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.8)), var(--bg-neutral);
             background-size: cover;
             background-position: center;
@@ -59,6 +61,7 @@
             max-width: 900px;
         }
 
+        /* CARDURI */
         .card {
             border-radius: 20px;
             padding: 25px;
@@ -132,7 +135,7 @@
             text-shadow: 0 1px 2px rgba(0,0,0,1);
         }
 
-        /* --- BULINE --- */
+        /* BULINE STATUS */
         .status-dot {
             height: 14px; width: 14px; background-color: #64748b;
             border-radius: 50%; display: inline-block; margin-left: 10px;
@@ -217,76 +220,3 @@
                 <div class="value-group">
                     <span class="value" id="Calitatea Aerului-Exterior">--</span><span class="unit">AQI</span>
                     <span id="dot-exterior" class="status-dot"></span>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-    <footer>Proiect IoT - Reactualizare automată la 30 secunde</footer>
-
-    <script>
-        const bodyElement = document.body;
-        const indoorCardBtn = document.getElementById('card-indoor-trigger');
-        const outdoorCardBtn = document.getElementById('card-outdoor-trigger');
-
-        const rootStyles = getComputedStyle(document.documentElement);
-        const neutralBgImg = rootStyles.getPropertyValue('--bg-neutral').trim();
-        const indoorBgImg = rootStyles.getPropertyValue('--bg-indoor').trim();
-        const outdoorBgImg = rootStyles.getPropertyValue('--bg-outdoor').trim();
-
-        const darkOverlay = "linear-gradient(rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.8))";
-
-        function setIndoorBackground() { bodyElement.style.backgroundImage = `${darkOverlay}, ${indoorBgImg}`; }
-        function setOutdoorBackground() { bodyElement.style.backgroundImage = `${darkOverlay}, ${outdoorBgImg}`; }
-        function setDefaultBackground() { bodyElement.style.backgroundImage = `${darkOverlay}, ${neutralBgImg}`; }
-
-        indoorCardBtn.addEventListener('mouseenter', setIndoorBackground);
-        indoorCardBtn.addEventListener('mouseleave', setDefaultBackground);
-        outdoorCardBtn.addEventListener('mouseenter', setOutdoorBackground);
-        outdoorCardBtn.addEventListener('mouseleave', setDefaultBackground);
-
-        setDefaultBackground();
-    </script>
-
-    <script>
-        const channelID = 3199207;      
-        const readApiKey = 'RRL6G5899NKOX890'; 
-        
-        const fieldMap = {
-            field1: 'Temperatura-Interior',
-            field2: 'Umiditate-Interior',
-            field3: 'Presiune-Interior',
-            field4: 'Calitatea Aerului-Interior', // BME680 (kOhms)
-            field5: 'Temperatura-Exterior',
-            field6: 'Umiditate-Exterior',
-            field7: 'Presiune-Exterior',
-            field8: 'Calitatea Aerului-Exterior'  // MQ-135 (Raw 0-3000)
-        };
-
-        async function getData() {
-            const url = `https://api.thingspeak.com/channels/${channelID}/feeds.json?api_key=${readApiKey}&results=1`;
-            const statusDiv = document.getElementById('last-update');
-
-            try {
-                if(statusDiv.innerText === 'Se conectează la server...') {
-                    statusDiv.innerHTML = '<span class="blink">Se descarcă datele...</span>';
-                }
-                const response = await fetch(url);
-                if (!response.ok) throw new Error('Eroare rețea');
-                const data = await response.json();
-
-                if (data.feeds && data.feeds.length > 0) {
-                    const feed = data.feeds[0];
-                    const date = new Date(feed.created_at);
-                    statusDiv.innerText = 'Ultima actualizare: ' + date.toLocaleString('ro-RO');
-
-                    for (const [key, elementId] of Object.entries(fieldMap)) {
-                        const element = document.getElementById(elementId);
-                        if (feed[key] !== null && feed[key] !== undefined) {
-                            let rawValue = parseFloat(feed[key]);
-                            
-                            // --- CALCUL AQI PENTRU EXTERIOR (MQ-135) ---
-                            // Input: 205 (Curat) ... 1000+ (Murdar)
-                            // Output: AQI 0-500
-                            if (key === 'field8') {
