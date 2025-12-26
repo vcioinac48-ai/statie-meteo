@@ -11,10 +11,9 @@
             --accent: #38bdf8;          
             --warning: #facc15;
             
-            /* --- AICI AM PUS IMAGINEA NOUĂ (VARIANTA 1) --- */
+            /* FUNDAL NEUTRU (VARIATION 1 - DRAMATIC SKY) */
             --bg-neutral: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=80');
             
-            /* Imaginile pentru hover */
             --bg-indoor: url('https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=1920&q=80');  
             --bg-outdoor: url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1920&q=80'); 
         }
@@ -29,7 +28,6 @@
             align-items: center;
             min-height: 100vh;
 
-            /* --- CONFIGURARE FUNDAL DINAMIC --- */
             background-image: linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.8)), var(--bg-neutral);
             background-size: cover;
             background-position: center;
@@ -53,7 +51,6 @@
             text-shadow: 0 1px 2px rgba(0,0,0,0.5);
         }
 
-        /* --- GRID PENTRU CARDURI --- */
         .dashboard-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -62,7 +59,6 @@
             max-width: 900px;
         }
 
-        /* --- DESIGN CARDURI --- */
         .card {
             border-radius: 20px;
             padding: 25px;
@@ -70,8 +66,6 @@
             transition: transform 0.3s ease, border-color 0.3s ease;
             position: relative;
             overflow: hidden;
-            
-            /* Sticla mata */
             background-color: rgba(0, 0, 0, 0.5); 
             backdrop-filter: blur(10px);          
             border: 1px solid rgba(255, 255, 255, 0.1); 
@@ -146,6 +140,7 @@
         }
         .status-green { background-color: #2ecc71; box-shadow: 0 0 10px #2ecc71; }
         .status-yellow { background-color: #f1c40f; box-shadow: 0 0 10px #f1c40f; }
+        .status-orange { background-color: #e67e22; box-shadow: 0 0 10px #e67e22; }
         .status-red { background-color: #e74c3c; box-shadow: 0 0 12px #e74c3c; }
 
         .blink { animation: blinker 1.5s linear infinite; color: var(--warning); }
@@ -190,7 +185,7 @@
             <div class="data-row">
                 <div class="label">🍃 Calitate Aer</div>
                 <div class="value-group">
-                    <span class="value" id="Calitatea Aerului-Interior">--</span><span class="unit">kΩ</span>
+                    <span class="value" id="Calitatea Aerului-Interior">--</span><span class="unit">AQI</span>
                     <span id="dot-interior" class="status-dot"></span>
                 </div>
             </div>
@@ -220,7 +215,7 @@
             <div class="data-row">
                 <div class="label">🍃 Calitate Aer</div>
                 <div class="value-group">
-                    <span class="value" id="Calitatea Aerului-Exterior">--</span><span class="unit">Raw</span>
+                    <span class="value" id="Calitatea Aerului-Exterior">--</span><span class="unit">AQI</span>
                     <span id="dot-exterior" class="status-dot"></span>
                 </div>
             </div>
@@ -240,17 +235,11 @@
         const indoorBgImg = rootStyles.getPropertyValue('--bg-indoor').trim();
         const outdoorBgImg = rootStyles.getPropertyValue('--bg-outdoor').trim();
 
-        const darkOverlay = "linear-gradient(rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.8))"; // Putin mai luminos overlay-ul
+        const darkOverlay = "linear-gradient(rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.8))";
 
-        function setIndoorBackground() {
-            bodyElement.style.backgroundImage = `${darkOverlay}, ${indoorBgImg}`;
-        }
-        function setOutdoorBackground() {
-            bodyElement.style.backgroundImage = `${darkOverlay}, ${outdoorBgImg}`;
-        }
-        function setDefaultBackground() {
-            bodyElement.style.backgroundImage = `${darkOverlay}, ${neutralBgImg}`;
-        }
+        function setIndoorBackground() { bodyElement.style.backgroundImage = `${darkOverlay}, ${indoorBgImg}`; }
+        function setOutdoorBackground() { bodyElement.style.backgroundImage = `${darkOverlay}, ${outdoorBgImg}`; }
+        function setDefaultBackground() { bodyElement.style.backgroundImage = `${darkOverlay}, ${neutralBgImg}`; }
 
         indoorCardBtn.addEventListener('mouseenter', setIndoorBackground);
         indoorCardBtn.addEventListener('mouseleave', setDefaultBackground);
@@ -268,11 +257,11 @@
             field1: 'Temperatura-Interior',
             field2: 'Umiditate-Interior',
             field3: 'Presiune-Interior',
-            field4: 'Calitatea Aerului-Interior',
+            field4: 'Calitatea Aerului-Interior', // BME680 (kOhms)
             field5: 'Temperatura-Exterior',
             field6: 'Umiditate-Exterior',
             field7: 'Presiune-Exterior',
-            field8: 'Calitatea Aerului-Exterior'
+            field8: 'Calitatea Aerului-Exterior'  // MQ-135 (Raw 0-3000)
         };
 
         async function getData() {
@@ -297,60 +286,7 @@
                         if (feed[key] !== null && feed[key] !== undefined) {
                             let rawValue = parseFloat(feed[key]);
                             
-                            // --- LOGICA PENTRU EXTERIOR (MQ-135) ---
+                            // --- CALCUL AQI PENTRU EXTERIOR (MQ-135) ---
+                            // Input: 205 (Curat) ... 1000+ (Murdar)
+                            // Output: AQI 0-500
                             if (key === 'field8') {
-                                // Afisam valoarea bruta (ex: 205)
-                                let displayValue = Math.round(rawValue); 
-                                element.innerText = displayValue;
-                                updateQualityColorStandard(displayValue, 'dot-exterior');
-
-                            // --- LOGICA PENTRU INTERIOR (BME680) ---
-                            } else if (key === 'field4') {
-                                let finalValue = Math.round(rawValue);
-                                element.innerText = finalValue;
-                                updateQualityColorBME680(finalValue, 'dot-interior');
-
-                            } else {
-                                element.innerText = rawValue.toFixed(1);
-                            }
-                        } else {
-                            if(element) element.innerText = "--";
-                        }
-                    }
-                } else {
-                    statusDiv.innerText = 'Canalul ThingSpeak este gol momentan.';
-                }
-            } catch (error) {
-                console.error(error);
-                statusDiv.innerText = 'Eroare conexiune ThingSpeak!';
-                statusDiv.style.color = '#ef4444';
-            }
-        }
-
-        // MQ-135 (Mic = Bine, Mare = Rau)
-        function updateQualityColorStandard(value, dotId) {
-            const dot = document.getElementById(dotId);
-            if (!dot) return;
-            dot.classList.remove('status-green', 'status-yellow', 'status-red');
-            
-            if (value <= 300) dot.classList.add('status-green');      
-            else if (value <= 800) dot.classList.add('status-yellow'); 
-            else dot.classList.add('status-red');                      
-        }
-
-        // BME680 (Mare = Bine, Mic = Rau)
-        function updateQualityColorBME680(value, dotId) {
-            const dot = document.getElementById(dotId);
-            if (!dot) return;
-            dot.classList.remove('status-green', 'status-yellow', 'status-red');
-            
-            if (value >= 50) dot.classList.add('status-green');       
-            else if (value >= 15) dot.classList.add('status-yellow'); 
-            else dot.classList.add('status-red');                     
-        }
-
-        getData();
-        setInterval(getData, 30000); 
-    </script>
-</body>
-</html>
