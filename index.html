@@ -5,22 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Monitorizare Meteo IoT</title>
     <style>
-        /* --- STILIZARE GENERALĂ (CSS) --- */
+        /* --- STILURI CSS --- */
         :root {
             --text-main: #f8fafc;       
-            --accent: #38bdf8;          
-            --warning: #facc15;
-            
-            /* FUNDAL NEUTRU */
             --bg-neutral: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=80');
-            
-            /* FUNDALURI HOVER */
             --bg-indoor: url('https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=1920&q=80');  
             --bg-outdoor: url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1920&q=80'); 
         }
 
         body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: sans-serif;
             color: var(--text-main);
             margin: 0;
             padding: 20px;
@@ -28,8 +22,6 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-
-            /* Fundal Dinamic */
             background-image: linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.8)), var(--bg-neutral);
             background-size: cover;
             background-position: center;
@@ -37,124 +29,36 @@
             transition: background-image 0.5s ease-in-out;
         }
 
-        h1 {
-            text-align: center;
-            font-weight: 300;
-            letter-spacing: 1px;
-            margin-bottom: 5px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-        }
+        h1 { text-align: center; font-weight: 300; margin-bottom: 5px; }
+        .status-bar { font-size: 0.85rem; color: #cbd5e1; margin-bottom: 30px; text-align: center; }
+        .dashboard-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; width: 100%; max-width: 900px; }
 
-        .status-bar {
-            font-size: 0.85rem;
-            color: #cbd5e1;
-            margin-bottom: 30px;
-            text-align: center;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-        }
-
-        .dashboard-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            width: 100%;
-            max-width: 900px;
-        }
-
-        /* CARDURI */
         .card {
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            transition: transform 0.3s ease, border-color 0.3s ease;
-            position: relative;
-            overflow: hidden;
+            border-radius: 20px; padding: 25px;
             background-color: rgba(0, 0, 0, 0.5); 
             backdrop-filter: blur(10px);          
             border: 1px solid rgba(255, 255, 255, 0.1); 
             color: white;
+            transition: transform 0.3s;
         }
-
-        .card:hover {
-            transform: translateY(-5px);
-            border-color: rgba(255, 255, 255, 0.3);
-        }
-
+        .card:hover { transform: translateY(-5px); border-color: rgba(255, 255, 255, 0.3); }
         .card-indoor { border-top: 4px solid #4ade80; }
         .card-outdoor { border-top: 4px solid #f87171; }
 
-        .card h2 {
-            margin-top: 0;
-            font-size: 1.6rem;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
-            padding-bottom: 15px;
-            margin-bottom: 25px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-        }
+        .card h2 { margin-top: 0; font-size: 1.6rem; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 15px; margin-bottom: 25px; }
+        .data-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 10px 15px; background-color: rgba(255, 255, 255, 0.03); border-radius: 10px; }
+        .value { font-size: 1.5rem; font-weight: 700; }
+        .unit { font-size: 0.9rem; color: #cbd5e1; margin-left: 2px; }
 
-        .data-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding: 10px 15px;
-            background-color: rgba(255, 255, 255, 0.03); 
-            border-radius: 10px;
-        }
-
-        .label {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #e2e8f0;
-            font-weight: 500;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
-        }
-
-        .value-group {
-            text-align: right;
-            display: flex;
-            align-items: center;
-            gap: 5px; 
-        }
-
-        .value {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #fff;
-            text-shadow: 0 2px 4px rgba(0,0,0,1);
-        }
-
-        .unit {
-            font-size: 0.9rem;
-            color: #cbd5e1;
-            margin-left: 2px;
-            text-shadow: 0 1px 2px rgba(0,0,0,1);
-        }
-
-        /* BULINE STATUS */
-        .status-dot {
-            height: 14px; width: 14px; background-color: #64748b;
-            border-radius: 50%; display: inline-block; margin-left: 10px;
-            border: 2px solid rgba(255,255,255,0.2);
-        }
+        .status-dot { height: 14px; width: 14px; background-color: #64748b; border-radius: 50%; display: inline-block; margin-left: 10px; border: 2px solid rgba(255,255,255,0.2); }
         .status-green { background-color: #2ecc71; box-shadow: 0 0 10px #2ecc71; }
         .status-yellow { background-color: #f1c40f; box-shadow: 0 0 10px #f1c40f; }
         .status-orange { background-color: #e67e22; box-shadow: 0 0 10px #e67e22; }
         .status-red { background-color: #e74c3c; box-shadow: 0 0 12px #e74c3c; }
-
-        .blink { animation: blinker 1.5s linear infinite; color: var(--warning); }
+        
+        .blink { animation: blinker 1.5s linear infinite; color: #facc15; }
         @keyframes blinker { 50% { opacity: 0.3; } }
-
-        footer {
-            margin-top: 50px;
-            font-size: 0.8rem;
-            color: #94a3b8;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
-        }
+        footer { margin-top: 50px; font-size: 0.8rem; color: #94a3b8; }
     </style>
 </head>
 <body>
@@ -166,57 +70,109 @@
         
         <div class="card card-indoor" id="card-indoor-trigger">
             <h2>🏠 Interior <small style="font-size:0.5em; opacity:0.8">(Living)</small></h2>
-            
-            <div class="data-row">
-                <div class="label">🌡️ Temperatură</div>
-                <div class="value-group">
-                    <span class="value" id="Temperatura-Interior">--</span><span class="unit">°C</span>
-                </div>
-            </div>
-            <div class="data-row">
-                <div class="label">💧 Umiditate</div>
-                <div class="value-group">
-                    <span class="value" id="Umiditate-Interior">--</span><span class="unit">%</span>
-                </div>
-            </div>
-            <div class="data-row">
-                <div class="label">⏲️ Presiune</div>
-                <div class="value-group">
-                    <span class="value" id="Presiune-Interior">--</span><span class="unit">hPa</span>
-                </div>
-            </div>
-            <div class="data-row">
-                <div class="label">🍃 Calitate Aer</div>
-                <div class="value-group">
-                    <span class="value" id="Calitatea Aerului-Interior">--</span><span class="unit">AQI</span>
-                    <span id="dot-interior" class="status-dot"></span>
-                </div>
-            </div>
+            <div class="data-row"><div>🌡️ Temperatură</div><div><span class="value" id="Temperatura-Interior">--</span><span class="unit">°C</span></div></div>
+            <div class="data-row"><div>💧 Umiditate</div><div><span class="value" id="Umiditate-Interior">--</span><span class="unit">%</span></div></div>
+            <div class="data-row"><div>⏲️ Presiune</div><div><span class="value" id="Presiune-Interior">--</span><span class="unit">hPa</span></div></div>
+            <div class="data-row"><div>🍃 Calitate Aer</div><div><span class="value" id="Calitatea Aerului-Interior">--</span><span class="unit">AQI</span><span id="dot-interior" class="status-dot"></span></div></div>
         </div>
 
         <div class="card card-outdoor" id="card-outdoor-trigger">
             <h2>🌲 Exterior <small style="font-size:0.5em; opacity:0.8">(Grădină)</small></h2>
+            <div class="data-row"><div>🌡️ Temperatură</div><div><span class="value" id="Temperatura-Exterior">--</span><span class="unit">°C</span></div></div>
+            <div class="data-row"><div>💧 Umiditate</div><div><span class="value" id="Umiditate-Exterior">--</span><span class="unit">%</span></div></div>
+            <div class="data-row"><div>⏲️ Presiune</div><div><span class="value" id="Presiune-Exterior">--</span><span class="unit">hPa</span></div></div>
+            <div class="data-row"><div>🍃 Calitate Aer</div><div><span class="value" id="Calitatea Aerului-Exterior">--</span><span class="unit">AQI</span><span id="dot-exterior" class="status-dot"></span></div></div>
+        </div>
 
-            <div class="data-row">
-                <div class="label">🌡️ Temperatură</div>
-                <div class="value-group">
-                    <span class="value" id="Temperatura-Exterior">--</span><span class="unit">°C</span>
-                </div>
-            </div>
-            <div class="data-row">
-                <div class="label">💧 Umiditate</div>
-                <div class="value-group">
-                    <span class="value" id="Umiditate-Exterior">--</span><span class="unit">%</span>
-                </div>
-            </div>
-            <div class="data-row">
-                <div class="label">⏲️ Presiune</div>
-                <div class="value-group">
-                    <span class="value" id="Presiune-Exterior">--</span><span class="unit">hPa</span>
-                </div>
-            </div>
-            <div class="data-row">
-                <div class="label">🍃 Calitate Aer</div>
-                <div class="value-group">
-                    <span class="value" id="Calitatea Aerului-Exterior">--</span><span class="unit">AQI</span>
-                    <span id="dot-exterior" class="status-dot"></span>
+    </div>
+    <footer>Proiect IoT - Update la 30 secunde</footer>
+
+    <script>
+        // -- FUNDALURI --
+        const body = document.body;
+        const root = getComputedStyle(document.documentElement);
+        const overlay = "linear-gradient(rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.8))";
+
+        function setBg(type) {
+            let img = root.getPropertyValue('--bg-neutral');
+            if(type === 'indoor') img = root.getPropertyValue('--bg-indoor');
+            if(type === 'outdoor') img = root.getPropertyValue('--bg-outdoor');
+            body.style.backgroundImage = `${overlay}, ${img.trim()}`;
+        }
+
+        document.getElementById('card-indoor-trigger').onmouseenter = () => setBg('indoor');
+        document.getElementById('card-indoor-trigger').onmouseleave = () => setBg('neutral');
+        document.getElementById('card-outdoor-trigger').onmouseenter = () => setBg('outdoor');
+        document.getElementById('card-outdoor-trigger').onmouseleave = () => setBg('neutral');
+    </script>
+
+    <script>
+        // -- DATE IOT --
+        const channelID = 3199207;      
+        const readApiKey = 'RRL6G5899NKOX890'; 
+        
+        const map = {
+            field1: 'Temperatura-Interior', field2: 'Umiditate-Interior', field3: 'Presiune-Interior', field4: 'Calitatea Aerului-Interior', 
+            field5: 'Temperatura-Exterior', field6: 'Umiditate-Exterior', field7: 'Presiune-Exterior', field8: 'Calitatea Aerului-Exterior' 
+        };
+
+        async function getData() {
+            const statusDiv = document.getElementById('last-update');
+            const url = `https://api.thingspeak.com/channels/${channelID}/feeds.json?api_key=${readApiKey}&results=1`;
+
+            try {
+                if(statusDiv.innerText.includes('Se conectează')) statusDiv.innerHTML = '<span class="blink">Se descarcă datele...</span>';
+                
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Nu pot contacta ThingSpeak');
+                const data = await response.json();
+
+                if (data.feeds.length > 0) {
+                    const f = data.feeds[0];
+                    statusDiv.innerText = 'Actualizat: ' + new Date(f.created_at).toLocaleTimeString();
+
+                    // Procesare fiecare camp
+                    Object.keys(map).forEach(key => {
+                        const el = document.getElementById(map[key]);
+                        if(!el) return;
+
+                        if (f[key] != null) {
+                            let val = parseFloat(f[key]);
+                            
+                            // LOGICA AQI
+                            if (key === 'field8') { // Exterior
+                                let aqi = 25;
+                                if(val > 250) aqi = 60;
+                                if(val > 800) aqi = 130;
+                                el.innerText = aqi;
+                                setColor(aqi, 'dot-exterior');
+                            } 
+                            else if (key === 'field4') { // Interior
+                                let aqi = 20;
+                                if(val < 50) aqi = 50;
+                                if(val < 15) aqi = 140;
+                                el.innerText = aqi;
+                                setColor(aqi, 'dot-interior');
+                            } 
+                            else {
+                                el.innerText = val.toFixed(1);
+                            }
+                        } else {
+                            el.innerText = "--";
+                        }
+                    });
+                }
+            } catch (err) {
+                console.error(err);
+                statusDiv.innerText = "Eroare: " + err.message;
+                statusDiv.style.color = "red";
+                // Aici e alerta care te va ajuta sa vezi ce e gresit
+                // alert("Eroare site: " + err.message); 
+            }
+        }
+
+        function setColor(val, id) {
+            const d = document.getElementById(id);
+            d.className = 'status-dot'; // Reset
+            if(val <= 50) d.classList.add('status-green');
+            else if
