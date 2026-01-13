@@ -1,1 +1,1 @@
-# statie-meteo
+# termometru-inteligent
