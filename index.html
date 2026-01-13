@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monitorizare Meteo IoT</title>
+    <title>Termostat Inteligent</title>
     <style>
         /* --- STILURI VIZUALE --- */
         :root {
@@ -68,13 +68,13 @@
 </head>
 <body>
 
-    <h1>⛅ Stația Meteo IoT</h1>
+    <h1>🌡️ Termostat Inteligent</h1>
     <div class="status-bar" id="last-update">Se conectează la server...</div>
 
     <div class="dashboard-container">
         
         <div class="card card-indoor" id="card-indoor-trigger">
-            <h2>🏠 Interior <small style="font-size:0.5em; opacity:0.8">(Living)</small></h2>
+            <h2>🏠 Interior</h2>
             <div class="data-row"><div class="label">🌡️ Temperatură</div><div class="value-group"><span class="value" id="Temperatura-Interior">--</span><span class="unit">°C</span></div></div>
             <div class="data-row"><div class="label">💧 Umiditate</div><div class="value-group"><span class="value" id="Umiditate-Interior">--</span><span class="unit">%</span></div></div>
             <div class="data-row"><div class="label">⏲️ Presiune</div><div class="value-group"><span class="value" id="Presiune-Interior">--</span><span class="unit">hPa</span></div></div>
@@ -82,7 +82,7 @@
         </div>
 
         <div class="card card-outdoor" id="card-outdoor-trigger">
-            <h2>🌲 Exterior <small style="font-size:0.5em; opacity:0.8">(Grădină)</small></h2>
+            <h2>🌲 Exterior</h2>
             <div class="data-row"><div class="label">🌡️ Temperatură</div><div class="value-group"><span class="value" id="Temperatura-Exterior">--</span><span class="unit">°C</span></div></div>
             <div class="data-row"><div class="label">💧 Umiditate</div><div class="value-group"><span class="value" id="Umiditate-Exterior">--</span><span class="unit">%</span></div></div>
             <div class="data-row"><div class="label">⏲️ Presiune</div><div class="value-group"><span class="value" id="Presiune-Exterior">--</span><span class="unit">hPa</span></div></div>
