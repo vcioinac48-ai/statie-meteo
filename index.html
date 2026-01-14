@@ -5,10 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Termostat Inteligent</title>
     <style>
-        /* --- STILURI VIZUALE --- */
         :root {
             --text-main: #f8fafc;       
-            /* Imagini de fundal */
+       
             --bg-neutral: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=80');
             --bg-indoor: url('https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=1920&q=80');  
             --bg-outdoor: url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1920&q=80'); 
@@ -140,23 +139,23 @@
                         if (f[key] != null) {
                             let val = parseFloat(f[key]);
                             
-                            // --- LOGICA AQI ---
-                            if (key === 'field8') { // Exterior (Raw MQ135)
-                                let aqi = 25; // Default: Foarte curat
-                                if(val > 250) aqi = 60;  // Moderat
-                                if(val > 800) aqi = 130; // Poluat
+                            
+                            if (key === 'field8') { 
+                                let aqi = 25; 
+                                if(val > 250) aqi = 60; 
+                                if(val > 800) aqi = 130; 
                                 el.innerText = aqi;
                                 setColor(aqi, 'dot-exterior');
                             } 
-                            else if (key === 'field4') { // Interior (kOhms BME680)
-                                let aqi = 20; // Default: Excelent (>50 kOhm)
-                                if(val < 50) aqi = 50;   // Bun
-                                if(val < 15) aqi = 140;  // Aer statut
+                            else if (key === 'field4') { 
+                                let aqi = 20; 
+                                if(val < 50) aqi = 50;   
+                                if(val < 15) aqi = 140;  
                                 el.innerText = aqi;
                                 setColor(aqi, 'dot-interior');
                             } 
                             else {
-                                // Temperatura/Umiditate
+                                
                                 el.innerText = val.toFixed(1);
                             }
                         } else {
